@@ -111,6 +111,7 @@ export default function Board() {
       description: task.description || '',
       priority: task.priority,
       type: task.type,
+      statusId: task.status.id,
       assigneeId: task.assignee?.id || '',
       dueDate: task.dueDate ? task.dueDate.slice(0, 10) : '',
     });
@@ -127,6 +128,9 @@ export default function Board() {
         assigneeId: editForm.assigneeId ? Number(editForm.assigneeId) : null,
         dueDate: editForm.dueDate || null,
       });
+      if (Number(editForm.statusId) !== selectedTask.status.id) {
+        await moveTask(selectedTask.id, { statusId: Number(editForm.statusId), order: 0 });
+      }
       setSelectedTask(null);
       fetchAll();
     } catch {
@@ -375,9 +379,19 @@ export default function Board() {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Durum</label>
+                <select
+                  value={editForm.statusId}
+                  onChange={(e) => setEditForm({ ...editForm, statusId: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {statuses.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                </select>
+              </div>
+
               <div className="pt-1 text-xs text-gray-400 space-y-1">
                 <p>Raporlayan: {selectedTask.reporter?.firstName} {selectedTask.reporter?.lastName}</p>
-                <p>Durum: {selectedTask.status?.name}</p>
                 <p>Oluşturulma: {new Date(selectedTask.createdAt).toLocaleDateString('tr-TR')}</p>
               </div>
 

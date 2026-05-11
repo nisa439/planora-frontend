@@ -12,15 +12,20 @@ const TYPE_TR = { TASK: 'Görev', BUG: 'Hata', FEATURE: 'Özellik', IMPROVEMENT:
 
 export default function Tasks() {
   const navigate = useNavigate();
-  const [tasks, setTasks] = useState([]);
+  const [allTasks, setAllTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState({ priority: '', status: '' });
+  const [priority, setPriority] = useState('');
 
   useEffect(() => {
-    getMyTasks(filter)
-      .then(({ data }) => setTasks(data.data))
+    setLoading(true);
+    getMyTasks()
+      .then(({ data }) => setAllTasks(data.data))
       .finally(() => setLoading(false));
-  }, [filter]);
+  }, []);
+
+  const tasks = priority
+    ? allTasks.filter((t) => t.priority === priority)
+    : allTasks;
 
   if (loading) return (
     <div className="flex items-center justify-center h-64 text-gray-400">
@@ -35,26 +40,25 @@ export default function Tasks() {
           <h2 className="text-2xl font-bold text-gray-800">Görevlerim</h2>
           <p className="text-gray-500 text-sm mt-1">Bana atanan {tasks.length} görev</p>
         </div>
-        <div className="flex gap-2">
-          <select
-            value={filter.priority}
-            onChange={(e) => setFilter({ ...filter, priority: e.target.value })}
-            className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">Tüm Öncelikler</option>
-            <option value="CRITICAL">Kritik</option>
-            <option value="HIGH">Yüksek</option>
-            <option value="MEDIUM">Orta</option>
-            <option value="LOW">Düşük</option>
-          </select>
-        </div>
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          className="px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Tüm Öncelikler</option>
+          <option value="CRITICAL">Kritik</option>
+          <option value="HIGH">Yüksek</option>
+          <option value="MEDIUM">Orta</option>
+          <option value="LOW">Düşük</option>
+        </select>
       </div>
 
       {tasks.length === 0 ? (
         <div className="text-center py-20 text-gray-400">
           <div className="text-5xl mb-4">✅</div>
-          <p className="text-lg font-medium text-gray-500">Görev yok</p>
-          <p className="text-sm mt-1">Sana atanmış görev bulunmuyor</p>
+          <p className="text-lg font-medium text-gray-500">
+            {priority ? 'Bu öncelikte görev yok' : 'Sana atanmış görev bulunmuyor'}
+          </p>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

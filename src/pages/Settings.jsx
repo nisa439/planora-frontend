@@ -39,7 +39,11 @@ export default function Settings() {
       setPassMsg({ text: 'Şifre başarıyla değiştirildi!', type: 'success' });
       setPassForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (err) {
-      setPassMsg({ text: err.response?.data?.message || 'Şifre değiştirilemedi', type: 'error' });
+      const raw = err.response?.data?.message || '';
+      const msg = raw.includes('currentPassword') ? 'Mevcut şifre ve yeni şifre zorunludur'
+        : raw.includes('incorrect') ? 'Mevcut şifre yanlış'
+        : raw || 'Şifre değiştirilemedi';
+      setPassMsg({ text: msg, type: 'error' });
     } finally { setSavingPass(false); }
   };
 
